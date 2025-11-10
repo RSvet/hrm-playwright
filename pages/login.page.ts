@@ -2,6 +2,7 @@ import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./base.page";
 
 export class LoginPage extends BasePage {
+  private loginTitle: Locator
   private usernameInput: Locator
   private usernameError: Locator
   private passwordInput: Locator
@@ -14,6 +15,7 @@ export class LoginPage extends BasePage {
 
   constructor(page: Page){
     super(page)
+    this.loginTitle = this.page.getByRole('heading', {name: 'Login'})
     this.usernameInput = this.page.getByRole('textbox', {name: "Username"})
     this.usernameError = this.usernameInput.locator('..').locator(':scope + span')
     this.passwordInput = this.page.locator('[type="password"]')
@@ -46,7 +48,12 @@ export class LoginPage extends BasePage {
   async clickForgotPasswordLink(){
     await this.forgotPasswordLink.click()
   }
-
+  
+  async verifyLoginFormTitleIsVisible(){
+    await this.expectVisible(this.loginTitle)
+    await this.expectText(this.loginTitle, 'Login')
+  }
+  
   async verifyForgotPasswordTitle(title: string){
     await this.expectText(this.forgotPasswortTitle, title)
   }
