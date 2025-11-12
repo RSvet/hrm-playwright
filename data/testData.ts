@@ -7,6 +7,11 @@ export const testData = {
     resetPasswordTitle: 'Reset Password',
     resetPasswordSuccess: 'Reset Password link sent successfully'
   }, 
+
+  employeeData: {
+    firstName: 'Test name',
+    lastName: 'Test last name'
+  },
   
   loginMessages: {
     missingCredential: 'Required',  
@@ -28,6 +33,8 @@ export const testData = {
   urls: {
     login: 'auth/login',
     passwordReset: 'requestPasswordResetCode',
-    dashboard: 'dashboard/index'
+    dashboard: 'dashboard/index',
+    employeeList: 'pim/viewEmployeeList',
+    addEmployee: 'pim/addEmployee'
   }
 }
