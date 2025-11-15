@@ -54,20 +54,20 @@ export class EmployeePage extends BasePage{
     await this.pimMenu.click()
   }
   
-  async openAddEmployee() {
+  private async openAddEmployee() {
     await this.pimMenu.click()
     await this.addEmployeeButton.click()
   }
 
-  async populateFirstName(firstName: string){
+  private async populateFirstName(firstName: string){
     await this.type(this.firstNameInput, firstName)
   }
 
-  async populateLastName(lastName: string){
+  private async populateLastName(lastName: string){
     await this.type(this.lastNameInput, lastName)
   }
 
-  async clickSaveButton(){
+  private async clickSaveButton(){
     await this.saveButton.click()
   }
 
@@ -92,7 +92,46 @@ export class EmployeePage extends BasePage{
 
     return employeeId
   }
+
+  async createTestEmployee(firstName: string, lastName: string): Promise<string> {
+    await this.openAddEmployee()
+    return await this.addNewEmployee(firstName, lastName)
+  }  
   
+  private async selectEmployeeForDeletion(id: string){
+     // Locate the row for the employee by ID
+    const targetRow = this.page.getByRole('row', { name: id })
+
+    // Click the delete button in that row
+    const deleteButton = targetRow.locator('button [class*="trash"]')
+    await deleteButton.click()
+  }
+
+  async checkEmployeeCheckBox(id:string){
+    const targetRow = this.page.getByRole('row', { name: id })
+    targetRow.getByRole('checkbox').check({force:true})
+    await this.expectVisible(this.deleteSelectedButton)
+  }
+
+  async deleteEmployeeById(id: string) {
+    this.selectEmployeeForDeletion(id)  
+    await this.clickConfirmDeleteButton()
+    await this.expectVisible(this.successToast) 
+  }
+
+  async deleteAndConfirm(id: string) {
+  await this.deleteEmployeeById(id)
+  await this.searchEmployeebyId(id)
+  await this.verifyEmployeeDoesNotExist()
+  }
+
+  async cancelDeletion(id:string){
+    this.selectEmployeeForDeletion(id)
+    await this.cancelDeletionButton.click()
+  }
+
+  // verification methods
+
   async searchEmployeeByName(name: string) {
     await this.employeeNameInput.fill(name)
     await this.searchButton.click()
@@ -117,6 +156,12 @@ export class EmployeePage extends BasePage{
   async verifyEmployeeSearchResultsById(id: string) {  
     const row = this.page.getByRole('cell', { name: id }).locator('..')
     await expect(row).toBeVisible()
+  }
+
+  async searchAndVerifyById(id: string) {
+    await this.openPIM()   
+    await this.searchEmployeebyId(id)
+    await this.verifyEmployeeSearchResultsById(id)
   }
 
   async verifyEmployeeDoesNotExist(){   
@@ -146,33 +191,4 @@ export class EmployeePage extends BasePage{
     expect(await this.tableCells.count()).toBeGreaterThan(0)
   }
 
-  private async selectEmployeeForDeletion(id: string){
-     // Locate the row for the employee by ID
-    const targetRow = this.page.getByRole('row', { name: id })
-
-    // Click the delete button in that row
-    const deleteButton = targetRow.locator('button [class*="trash"]')
-    await deleteButton.click()
-  }
-
-  async checkEmployeeCheckBox(id:string){
-    const targetRow = this.page.getByRole('row', { name: id })
-    targetRow.getByRole('checkbox').check({force:true})
-    await this.expectVisible(this.deleteSelectedButton)
-  }
-
-  async deleteEmployeeById(id: string) {
-    this.selectEmployeeForDeletion(id)
-
-    // Confirm deletion in the modal/dialog  
-    await this.clickConfirmDeleteButton()
-    await this.expectVisible(this.successToast) 
-  }
-
-  async cancelDeletion(id:string){
-    this.selectEmployeeForDeletion(id)
-
-    // Cancel deletion in the modal
-    await this.cancelDeletionButton.click()
-  }
 }
