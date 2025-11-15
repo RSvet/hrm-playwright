@@ -12,12 +12,14 @@ export class EmployeePage extends BasePage{
   private employeeNameInput: Locator
   private searchButton: Locator
   private confirmDeleteButton: Locator
+  private cancelDeletionButton: Locator
   private noInfoToast: Locator
   private noRecords: Locator
   private tableCells: Locator
   private resetButton: Locator
   private searchInputs: Locator
   private selectInputs: Locator
+  private deleteSelectedButton: Locator
 
   constructor(page: Page){
     super(page)
@@ -36,12 +38,14 @@ export class EmployeePage extends BasePage{
     this.employeeIdInput = this.page.locator('label:has-text("Employee Id")').locator('..').locator(':scope + div input')
     this.searchButton = page.locator('button:has-text("Search")')
     this.confirmDeleteButton = this.page.locator('button:has-text("Yes, Delete")')
+    this.cancelDeletionButton =  this.page.locator('button:has-text("No, Cancel")')
     this.noInfoToast = this.page.locator('.oxd-toast--info')
     this.noRecords = this.page.locator('span').getByText('No Records Found')
     this.tableCells =  this.page.locator('.oxd-table-cell')
     this.resetButton = this.page.locator('button:has-text("Reset")')
     this.searchInputs =  this.page.locator('.oxd-table-filter input')
     this.selectInputs = this.page.locator('.oxd-table-filter .oxd-select-text-input')
+    this.deleteSelectedButton = this.page.locator('button:has-text("Delete Selected")')
 
   }
 
@@ -69,6 +73,14 @@ export class EmployeePage extends BasePage{
 
   async clickResetButton(){
     await this.resetButton.click()
+  }
+
+  async clickConfirmDeleteButton(){
+    await this.confirmDeleteButton.click()
+  }
+
+  async clickDeleteSelectedButton(){
+    await this.deleteSelectedButton.click()
   }
 
   async addNewEmployee(firstName: string, lastName: string) {
@@ -134,16 +146,33 @@ export class EmployeePage extends BasePage{
     expect(await this.tableCells.count()).toBeGreaterThan(0)
   }
 
-  async deleteEmployeeById(id: string) {
-    // Locate the row for the employee by ID
+  private async selectEmployeeForDeletion(id: string){
+     // Locate the row for the employee by ID
     const targetRow = this.page.getByRole('row', { name: id })
 
     // Click the delete button in that row
     const deleteButton = targetRow.locator('button [class*="trash"]')
     await deleteButton.click()
+  }
+
+  async checkEmployeeCheckBox(id:string){
+    const targetRow = this.page.getByRole('row', { name: id })
+    targetRow.getByRole('checkbox').check({force:true})
+    await this.expectVisible(this.deleteSelectedButton)
+  }
+
+  async deleteEmployeeById(id: string) {
+    this.selectEmployeeForDeletion(id)
 
     // Confirm deletion in the modal/dialog  
-    await this.confirmDeleteButton.click()
+    await this.clickConfirmDeleteButton()
     await this.expectVisible(this.successToast) 
+  }
+
+  async cancelDeletion(id:string){
+    this.selectEmployeeForDeletion(id)
+
+    // Cancel deletion in the modal
+    await this.cancelDeletionButton.click()
   }
 }
