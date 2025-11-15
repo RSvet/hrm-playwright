@@ -48,8 +48,15 @@ test.describe('Employee list page scenarios', ()=>{
       await employeePage.deleteEmployeeById(employeeId)
     }) 
 
-    test('TC-017: Search with invalid data', async({page})=>{
-   
+    test('TC-017: Search with invalid data', async({page})=>{      
+      //navigate to employee list 
+      const employeePage = new EmployeePage(page)
+      await employeePage.openPIM()
+      await employeePage.verifyPageUrl(testData.urls.employeeList)
+
+      //search for the employee and verify
+      await employeePage.searchEmployeeByName(testData.employeeData.invalidFirstName + ' ' + testData.employeeData.invalidLastName)
+      await employeePage.verifyEmployeeDoesNotExist()
     }) 
 
     test('TC-018: Reset search', async({page})=>{

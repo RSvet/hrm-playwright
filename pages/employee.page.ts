@@ -12,6 +12,9 @@ export class EmployeePage extends BasePage{
   private employeeNameInput: Locator
   private searchButton: Locator
   private confirmDeleteButton: Locator
+  private noInfoToast: Locator
+  private noRecords: Locator
+  private tableCells: Locator
 
   constructor(page: Page){
     super(page)
@@ -30,6 +33,9 @@ export class EmployeePage extends BasePage{
     this.employeeIdInput = this.page.locator('label:has-text("Employee Id")').locator('..').locator(':scope + div input')
     this.searchButton = page.locator('button:has-text("Search")')
     this.confirmDeleteButton = this.page.locator('button:has-text("Yes, Delete")')
+    this.noInfoToast = this.page.locator('.oxd-toast--info')
+    this.noRecords = this.page.locator('span').getByText('No Records Found')
+    this.tableCells =  this.page.locator('.oxd-table-cell')
 
   }
 
@@ -89,6 +95,12 @@ export class EmployeePage extends BasePage{
   async verifyEmployeeSearchResultsById(id: string) {  
     const row = this.page.getByRole('cell', { name: id }).locator('..')
     await expect(row).toBeVisible()
+  }
+
+  async verifyEmployeeDoesNotExist(){   
+    await expect(this.tableCells).toHaveCount(0)
+    await this.expectVisible(this.noInfoToast)
+    await this.expectVisible(this.noRecords)
   }
 
   async deleteEmployeeById(id: string) {
