@@ -10,7 +10,9 @@ export const testData = {
 
   employeeData: {
     firstName: 'Test name',
-    lastName: 'Test last name'
+    lastName: 'Test last name',
+    invalidFirstName: 'fakeEmployeeName',
+    invalidLastName: 'fakeEmployeeLastName'
   },
   
   loginMessages: {

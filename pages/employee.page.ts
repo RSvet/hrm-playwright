@@ -27,8 +27,10 @@ export class EmployeePage extends BasePage{
 
     // Employee List Locators
     this.employeeNameInput = this.page.locator('label:has-text("Employee Name")').locator('..').locator(':scope + div input')
+    this.employeeIdInput = this.page.locator('label:has-text("Employee Id")').locator('..').locator(':scope + div input')
     this.searchButton = page.locator('button:has-text("Search")')
     this.confirmDeleteButton = this.page.locator('button:has-text("Yes, Delete")')
+
   }
 
   
@@ -68,16 +70,25 @@ export class EmployeePage extends BasePage{
     await this.searchButton.click()
   }
 
-  async verifyEmployeeSearchResults(id: string, firstName: string, lastName: string) {
-    const targetRow = this.page.getByRole('row', { name: id })
+  async searchEmployeebyId(id: string){
+    await this.employeeIdInput.fill(id)
+    await this.searchButton.click()
+  }
 
-      // Verify first name cell is visible within that row
-    const firstNameCell = targetRow.locator('.oxd-table-cell', { hasText: firstName })
+  async verifyEmployeeSearchResultsByName(id: string, firstName: string, lastName: string) {     
+    const targetRow = this.page.getByRole('cell', {name: id}).locator('..')
+    // Verify first name cell is visible within that row
+    const firstNameCell =  targetRow.locator('.oxd-table-cell', { hasText: firstName })
     await expect(firstNameCell).toBeVisible()
-
+  
     // Verify last name cell is visible within that row
     const lastNameCell = targetRow.locator('.oxd-table-cell', { hasText: lastName })
     await expect(lastNameCell).toBeVisible()
+  }
+    
+  async verifyEmployeeSearchResultsById(id: string) {  
+    const row = this.page.getByRole('cell', { name: id }).locator('..')
+    await expect(row).toBeVisible()
   }
 
   async deleteEmployeeById(id: string) {
