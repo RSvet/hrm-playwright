@@ -60,7 +60,18 @@ test.describe('Employee list page scenarios', ()=>{
     }) 
 
     test('TC-018: Reset search', async({page})=>{
-   
+      //navigate to employee list 
+      const employeePage = new EmployeePage(page)
+      await employeePage.openPIM()
+      await employeePage.verifyPageUrl(testData.urls.employeeList)
+
+      //search for the employee and verify
+      await employeePage.searchEmployeeByName(testData.employeeData.invalidFirstName)
+      await employeePage.verifyEmployeeDoesNotExist()
+
+      //reset search
+      await employeePage.clickResetButton()
+      await employeePage.verifySearchIsReset()
     })
   }) 
 

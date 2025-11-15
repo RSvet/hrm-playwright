@@ -15,6 +15,9 @@ export class EmployeePage extends BasePage{
   private noInfoToast: Locator
   private noRecords: Locator
   private tableCells: Locator
+  private resetButton: Locator
+  private searchInputs: Locator
+  private selectInputs: Locator
 
   constructor(page: Page){
     super(page)
@@ -36,6 +39,9 @@ export class EmployeePage extends BasePage{
     this.noInfoToast = this.page.locator('.oxd-toast--info')
     this.noRecords = this.page.locator('span').getByText('No Records Found')
     this.tableCells =  this.page.locator('.oxd-table-cell')
+    this.resetButton = this.page.locator('button:has-text("Reset")')
+    this.searchInputs =  this.page.locator('.oxd-table-filter input')
+    this.selectInputs = this.page.locator('.oxd-table-filter .oxd-select-text-input')
 
   }
 
@@ -59,6 +65,10 @@ export class EmployeePage extends BasePage{
 
   async clickSaveButton(){
     await this.saveButton.click()
+  }
+
+  async clickResetButton(){
+    await this.resetButton.click()
   }
 
   async addNewEmployee(firstName: string, lastName: string) {
@@ -101,6 +111,27 @@ export class EmployeePage extends BasePage{
     await expect(this.tableCells).toHaveCount(0)
     await this.expectVisible(this.noInfoToast)
     await this.expectVisible(this.noRecords)
+  }
+
+  private async verifyInputsAreEmpty(){
+    for (const input of await this.searchInputs.all()){
+      await expect(input).toHaveValue('')
+    }
+  }
+
+  private async verifySelectInputsAreEmpty(){
+    for (const select of await this.selectInputs.all()){
+      const selectedText = (await select.textContent())?.trim()
+      if(selectedText !== 'Current Employees Only')
+        expect (selectedText).toContain('Select')
+    }
+  }
+
+  async verifySearchIsReset(){
+    await this.verifyInputsAreEmpty()
+    await this.verifySelectInputsAreEmpty()
+    await this.expectVisible(this.tableCells.first())
+    expect(await this.tableCells.count()).toBeGreaterThan(0)
   }
 
   async deleteEmployeeById(id: string) {
