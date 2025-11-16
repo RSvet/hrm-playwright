@@ -5,9 +5,13 @@ export class EmployeePage extends BasePage{
   private pimMenu: Locator
   private addEmployeeButton: Locator
   private firstNameInput: Locator
+  private firstNameError: Locator
   private lastNameInput: Locator
+  private lastNameError: Locator
+  private middleNameInput: Locator
   private employeeIdInput: Locator
   private saveButton: Locator
+  private cancelButton: Locator
   private successToast: Locator
   private employeeNameInput: Locator
   private searchButton: Locator
@@ -28,9 +32,13 @@ export class EmployeePage extends BasePage{
     // Add Employee Locators
     this.addEmployeeButton = this.page.locator('button:has-text("Add")')
     this.firstNameInput = this.page.locator('input[name="firstName"]')
+    this.firstNameError = this.firstNameInput.locator('..').locator(':scope + span')
     this.lastNameInput = this.page.locator('input[name="lastName"]')
+    this.lastNameError = this.lastNameInput.locator('..').locator(':scope + span')
+    this.middleNameInput =  this.page.locator('input[name="middleName"]')
     this.employeeIdInput = this.page.locator('label:has-text("Employee Id")').locator('..').locator(':scope + div input')
     this.saveButton = this.page.locator('button:has-text("Save")')
+    this.cancelButton =  this.page.locator('button:has-text("Cancel")')
     this.successToast = this.page.locator('.oxd-toast--success')
 
     // Employee List Locators
@@ -54,7 +62,7 @@ export class EmployeePage extends BasePage{
     await this.pimMenu.click()
   }
   
-  private async openAddEmployee() {
+  public async openAddEmployee() {
     await this.pimMenu.click()
     await this.addEmployeeButton.click()
   }
@@ -67,8 +75,16 @@ export class EmployeePage extends BasePage{
     await this.type(this.lastNameInput, lastName)
   }
 
-  private async clickSaveButton(){
+  private async populateMiddleName(middleName:string){
+    await this.type(this.middleNameInput, middleName)
+  }
+
+  async clickSaveButton(){
     await this.saveButton.click()
+  }
+
+  async clickCancelButton(){
+    await this.cancelButton.click()
   }
 
   async clickResetButton(){
@@ -82,10 +98,13 @@ export class EmployeePage extends BasePage{
   async clickDeleteSelectedButton(){
     await this.deleteSelectedButton.click()
   }
-
-  async addNewEmployee(firstName: string, lastName: string) {
+    
+  async addNewEmployee(firstName: string, lastName: string, middleName?: string) {
     await this.populateFirstName(firstName)
     await this.populateLastName(lastName)
+    if (middleName) {
+    await this.populateMiddleName(middleName)
+    }
     const employeeId = await this.employeeIdInput.inputValue()
     await this.clickSaveButton()
     await this.expectVisible(this.successToast) 
@@ -142,12 +161,17 @@ export class EmployeePage extends BasePage{
     await this.searchButton.click()
   }
 
-  async verifyEmployeeSearchResultsByName(id: string, firstName: string, lastName: string) {     
+  async verifyEmployeeSearchResultsByName(id: string, firstName: string, lastName: string, middleName?: string) {     
     const targetRow = this.page.getByRole('cell', {name: id}).locator('..')
     // Verify first name cell is visible within that row
-    const firstNameCell =  targetRow.locator('.oxd-table-cell', { hasText: firstName })
+     const nameText = middleName
+    ? `${firstName} ${middleName}`
+    : firstName
+
+    const firstNameCell =  targetRow.locator('.oxd-table-cell', { hasText: nameText })
     await expect(firstNameCell).toBeVisible()
-  
+
+ 
     // Verify last name cell is visible within that row
     const lastNameCell = targetRow.locator('.oxd-table-cell', { hasText: lastName })
     await expect(lastNameCell).toBeVisible()
@@ -189,6 +213,13 @@ export class EmployeePage extends BasePage{
     await this.verifySelectInputsAreEmpty()
     await this.expectVisible(this.tableCells.first())
     expect(await this.tableCells.count()).toBeGreaterThan(0)
+  }
+
+  async verifyMissingRequiredFieldsError(message: string){
+    await this.expectText(this.firstNameError, message)    
+    await this.expectText(this.lastNameError, message)
+    await expect (this.firstNameInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
+    await expect (this.lastNameInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
   }
 
 }

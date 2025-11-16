@@ -11,8 +11,10 @@ export const testData = {
   employeeData: {
     firstName: 'Test name',
     lastName: 'Test last name',
+    middleName: 'Test middle name',
     invalidFirstName: 'fakeEmployeeName',
-    invalidLastName: 'fakeEmployeeLastName'
+    invalidLastName: 'fakeEmployeeLastName',
+    missingRequiredFieldMsg: 'Required', 
   },
   
   loginMessages: {
