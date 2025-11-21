@@ -14,7 +14,12 @@ export const testData = {
     middleName: 'Test middle name',
     invalidFirstName: 'fakeEmployeeName',
     invalidLastName: 'fakeEmployeeLastName',
-    missingRequiredFieldMsg: 'Required', 
+    editedFirstName: 'fNameEdited',
+    editedLastName: 'lNameEdited',
+    editedMiddleName: 'mNameEdited',
+    gender: 'Female',
+    missingRequiredFieldMsg: 'Required',
+    duplicateIdError: 'Employee Id already exists'
   },
   
   loginMessages: {
@@ -39,6 +44,7 @@ export const testData = {
     passwordReset: 'requestPasswordResetCode',
     dashboard: 'dashboard/index',
     employeeList: 'pim/viewEmployeeList',
-    addEmployee: 'pim/addEmployee'
+    addEmployee: 'pim/addEmployee',
+    editPersonalDetails: 'pim/viewPersonalDetails'
   }
 }
