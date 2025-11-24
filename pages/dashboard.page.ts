@@ -11,8 +11,9 @@ export class DashboardPage extends BasePage{
     this.dashboardTitle = this.page.locator('h6')
     this.dashboardCardNames = this.page.locator('.orangehrm-dashboard-widget-name')
     this.quickLaunchSection = this.page.locator('.orangehrm-quick-launch')
-  
   }
+
+  // Verifications
 
   async verifyDashboardPageUrl(url: string){
     await this.verifyPageUrl(url)
@@ -24,8 +25,7 @@ export class DashboardPage extends BasePage{
   }
 
   /**
-   * Verifies titles on the dashboard cards (widgets)
-   * @param {array} expectedWidgets
+   * Verifies titles on the dashboard cards (widgets)   
    */
   async verifyDashboardWidgets(expectedWidgets: string[]){
     const actualWidgets = await this.dashboardCardNames.allTextContents();
@@ -34,10 +34,10 @@ export class DashboardPage extends BasePage{
     expect(normalizedActual).toEqual(normalizedExpected);    
   }
 
+  // Actions
+
   /**
    * Clicks the button from the Quick Launch section and verifies url
-   * @param {string }option - button name
-   * @param {string} expectedUrlPart 
    */  
   async clickQuickLaunchOption(option: string, expectedUrlPart: string) {
     await this.quickLaunchSection.getByRole('button', {name: option}).click();
@@ -46,7 +46,6 @@ export class DashboardPage extends BasePage{
 
   /**
    * Loops through all quick launch options, clicks button and verifies url
-   * @param buttons - array of objects with button names and resulting urls
    */
   async verifyAllQuickLaunchButtons(buttons: { name: string, urlPart: string }[]){
     for (const btn of buttons) {
