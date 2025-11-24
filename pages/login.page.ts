@@ -27,17 +27,31 @@ export class LoginPage extends BasePage {
     this.forgotPasswortTitle = this.page.locator('h6.orangehrm-forgot-password-title')
   }
 
+  // Actions
+
   async enterUsername(username: string){
-    await this.type(this.usernameInput, username)   
+    await this.populateField(this.usernameInput, username)   
   }
 
   async enterPassword(password: string){
-    await this.type(this.passwordInput, password) 
+    await this.populateField(this.passwordInput, password) 
   }
 
   async clickLoginButton(){
     await this.loginButton.click()
   } 
+
+  async clickForgotPasswordLink(){
+    await this.forgotPasswordLink.click()
+  }
+  
+  async clickResetButton (){
+    await this.resetPasswordButton.click()
+  }
+
+  async cancelReset(){
+    await this.cancelResetButton.click()
+  }
 
   async loginUser(username: string, password: string){
     await this.enterUsername(username)
@@ -45,44 +59,34 @@ export class LoginPage extends BasePage {
     await this.clickLoginButton()
   }
 
-  async clickForgotPasswordLink(){
-    await this.forgotPasswordLink.click()
+  async resetPassword(username: string){
+    await this.enterUsername(username)
+    await this.clickResetButton()
   }
   
+  //Verifications
+
   async verifyLoginFormTitleIsVisible(){
     await this.expectVisible(this.loginTitle)
     await this.expectText(this.loginTitle, 'Login')
   }
-  
+
   async verifyForgotPasswordTitle(title: string){
     await this.expectText(this.forgotPasswortTitle, title)
   }
 
   async verifyMissingUsernameError(message: string){
     await this.expectText(this.usernameError, message)
-    await expect (this.usernameInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
+    await this.expectErrorBorderColor(this.usernameInput)
   }
 
-  async verifyMissingPasswordError(message: string){
-    await this.expectText(this.passwordError, message)    
-    await expect (this.passwordInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
+   async verifyMissingPasswordError(message: string){
+    await this.expectText(this.passwordError, message) 
+    await this.expectErrorBorderColor(this.passwordInput)    
   }
 
   async verifyInvalidCredentialsMessage(message: string) {
     await this.expectVisible(this.page.getByText(message))
-  }
-
-  async resetPassword(username: string){
-    await this.enterUsername(username)
-    await this.clickResetButton()
-  }
-
-  async clickResetButton (){
-    await this.resetPasswordButton.click()
-  }
-
-  async cancelReset(){
-    await this.cancelResetButton.click()
   }
 
 }

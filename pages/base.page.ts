@@ -11,7 +11,7 @@ export class BasePage {
     await this.page.goto(url);
   }
 
-  async type(element: Locator, text: string){
+  async populateField(element: Locator, text: string){
     await element.fill(text)
   }
 
@@ -29,6 +29,10 @@ export class BasePage {
 
   async verifyPageUrl(text: string){
     await expect (this.page).toHaveURL(new RegExp (text))
+  }
+
+  async expectErrorBorderColor(element: Locator, colorRegex = /rgb\(235,\s*\d+,\s*\d+\)/) {
+    await expect(element).toHaveCSS('border-color', colorRegex);
   }
 
 }
