@@ -28,6 +28,19 @@ export class EmployeePage extends BasePage{
   private deleteSelectedButton: Locator
   private savePersonalDetailsButton: Locator
   private editFirstEmployeeButton: Locator
+  private jobDetailsLink: Locator
+  private jobTitleDropdown: Locator
+  private subUnitDropdown: Locator
+  private statusDropdown: Locator
+  private terminateButton: Locator
+  private terminateModal: Locator
+  private terminateDateInput: Locator
+  private terminationDropdown: Locator
+  private includeDropdown: Locator
+  private saveButtonForTermination: Locator
+  private terminationDateError: Locator
+  private terminationReasonError: Locator
+  private tableLoader: Locator
 
   constructor(page: Page){
     super(page)
@@ -61,11 +74,22 @@ export class EmployeePage extends BasePage{
     this.selectInputs = this.page.locator('.oxd-table-filter .oxd-select-text-input')
     this.deleteSelectedButton = this.page.locator('button:has-text("Delete Selected")')
     this.editFirstEmployeeButton =  this.page.locator('button [class*="pencil"]').first()
+    this.includeDropdown = this.page.locator('label:has-text("Include")').locator('..').locator(':scope + div .oxd-select-text-input')
+    this.tableLoader = page.locator('.oxd-table-loader')
 
-    // Personal Details Locators
+    // Employee Details Locators
     this.savePersonalDetailsButton = this.page.locator('button:has-text("Save")').first()
-
-
+    this.jobDetailsLink = this.page.getByRole('link', { name: 'Job' })
+    this.jobTitleDropdown = this.page.locator('label:has-text("Job Title")').locator('..').locator(':scope + div .oxd-select-text-input')
+    this.subUnitDropdown = this.page.locator('label:has-text("Sub Unit")').locator('..').locator(':scope + div .oxd-select-text-input')
+    this.statusDropdown = this.page.locator('label:has-text("Employment Status")').locator('..').locator(':scope + div .oxd-select-text-input')
+    this.terminateButton = this.page.locator('.--termination-button')
+    this.terminateModal =  this.page.locator('.orangehrm-dialog-modal:has-text("Terminate Employment")')
+    this.terminateDateInput = this.page.locator('.orangehrm-dialog-modal [placeholder="yyyy-dd-mm"]')
+    this.terminationDropdown = this.page.locator('label:has-text("Termination Reason")').locator('..').locator(':scope + div .oxd-select-text')
+    this.saveButtonForTermination =  this.page.locator('.orangehrm-dialog-modal button:has-text("Save")')
+    this.terminationDateError = this.page.locator('.orangehrm-dialog-modal .oxd-input-group', {hasText: 'Termination Date'}).locator('span')
+    this.terminationReasonError = this.page.locator('.orangehrm-dialog-modal .oxd-input-group', {hasText: 'Termination Reason'}).locator('span')
   }
 
   
@@ -74,7 +98,7 @@ export class EmployeePage extends BasePage{
   }
   
   public async openAddEmployee() {
-    await this.pimMenu.click()
+    await this.openPIM()
     await this.addEmployeeButton.click()
   }
 
@@ -92,6 +116,10 @@ export class EmployeePage extends BasePage{
 
   async clickSaveButton(){
     await this.saveButton.click()
+  }
+
+  async clickSaveButtonForTermination(){
+    await this.saveButtonForTermination.click()
   }
 
   async clickCancelButton(){
@@ -116,6 +144,35 @@ export class EmployeePage extends BasePage{
 
   async clickSavePersonalDetailsButton(){
     await this.savePersonalDetailsButton.click()
+  }
+
+  async clickTerminateButton(){
+    await this.terminateButton.click()
+  }
+
+  async clickJobDetailsLink(){
+    await this.jobDetailsLink.click()
+    await this.expectVisible(this.jobTitleDropdown)
+  }
+
+  async openJobTitleDropdown(){     
+    await this.jobTitleDropdown.click()
+  }
+
+  async openSubUnitDropdown(){
+    await this.subUnitDropdown.click()
+  }
+
+  async openStatusDropdown(){
+    await this.statusDropdown.click()
+  }
+
+  async openTerminationReasonDropdown(){
+    await this.terminationDropdown.click()
+  }
+
+  async openIncludeDropdown(){
+    await this.includeDropdown.click()
   }
     
   async addNewEmployee(firstName: string, lastName: string, middleName?: string) {
@@ -169,6 +226,28 @@ export class EmployeePage extends BasePage{
     await this.updateEmployeeId(id)
     await this.savePersonalDetailsButton.click()
   }
+
+  async terminateEmployee(reason:string){
+    await this.clickTerminateButton()
+    await this.expectVisible(this.terminateModal)
+    await this.setTerminationDateToToday()
+    await this.selectTerminationReason(reason)
+    await this.clickSaveButtonForTermination()
+    await this.expectVisible(this.successToast)
+  }
+
+  async formatDateForTermination(){
+    const now = new Date()            
+    const yyyy = now.getFullYear().toString()
+    const mm = (now.getMonth() + 1).toString().padStart(2, '0')
+    const dd = now.getDate().toString().padStart(2, '0')
+    return `${yyyy}-${dd}-${mm}`;
+  }
+
+  async setTerminationDateToToday(){
+    const todayTermination =  await this.formatDateForTermination()
+    await this.type(this.terminateDateInput, todayTermination)
+  }
   
   private async selectEmployeeForDeletion(id: string){
      // Locate the row for the employee by ID
@@ -206,7 +285,7 @@ export class EmployeePage extends BasePage{
   }
 
   async cancelDeletion(id:string){
-    this.selectEmployeeForDeletion(id)
+    await this.selectEmployeeForDeletion(id)
     await this.cancelDeletionButton.click()
   }
 
@@ -224,17 +303,88 @@ export class EmployeePage extends BasePage{
     return allIds.slice(0, 2)
   }
 
+  async selectJobTitle(job:string){
+    await this.openJobTitleDropdown()
+    await this.page.getByRole('option', {name: job}).click()
+    await this.expectText(this.jobTitleDropdown, job)
+  }
 
+  async selectSubUnit(subunit: string){
+    await this.openSubUnitDropdown()
+    await this.page.getByRole('option', {name: subunit}).click()
+    await this.expectText(this.subUnitDropdown, subunit)
+  }
+
+  async selectStatus(status: string){
+    await this.openStatusDropdown()
+    await this.page.getByRole('option', {name: status}).click()
+    await this.expectText(this.statusDropdown, status)
+  }
+
+  async selectTerminationReason(reason:string){
+    await this.openTerminationReasonDropdown()
+    await this.page.getByRole('option', {name: reason}).click()
+    await this.expectText(this.terminationDropdown, reason)
+  }
+
+  async addJobTitle(job:string){
+    await this.selectJobTitle(job)
+    await this.clickSaveButton()
+    await this.expectVisible(this.successToast)
+  }
+
+  async addSubUnit(subunit:string){
+    await this.selectSubUnit(subunit)
+    await this.clickSaveButton()
+    await this.expectVisible(this.successToast)
+  }
+
+  async addStatus(status:string){
+    await this.selectStatus(status)
+    await this.clickSaveButton()
+    await this.expectVisible(this.successToast)
+  }
+
+  async selectEmployment(employment:string){
+    await this.openIncludeDropdown()
+    await this.page.getByRole('option', {name: employment}).click()   
+    await this.expectText(this.includeDropdown, employment) 
+  }
   // verification methods
 
   async searchEmployeeByName(name: string) {
     await this.employeeNameInput.fill(name)
+    await this.expectValue(this.employeeNameInput, name)
     await this.searchButton.click()
+    await this.tableLoader.waitFor({ state: "hidden" })
   }
 
   async searchEmployeebyId(id: string){
     await this.employeeIdInput.fill(id)
+    await this.expectValue(this.employeeIdInput, id)
     await this.searchButton.click()
+    await this.tableLoader.waitFor({ state: "hidden" })   
+  }
+
+  async searchEmployeeByJobTitle(job:string){
+    await this.selectJobTitle(job)
+    await this.expectText(this.jobTitleDropdown, job)
+    await this.searchButton.click()
+    await this.tableLoader.waitFor({ state: "hidden" })
+  }
+
+  async searchEmployeeBySubUnit(subunit:string){
+    await this.selectSubUnit(subunit)
+    await this.expectText(this.subUnitDropdown, subunit)
+    await this.searchButton.click()
+    await this.tableLoader.waitFor({ state: "hidden" })
+  }
+
+  async searchEmployeeByStatus(status:string){
+    await this.selectStatus(status)
+    await this.expectText(this.statusDropdown, status)
+    await this.searchButton.click()
+    await this.tableLoader.waitFor({ state: "hidden" })
   }
 
   async verifyEmployeeSearchResultsByName(id: string, firstName: string, lastName: string, middleName?: string) {     
@@ -245,17 +395,34 @@ export class EmployeePage extends BasePage{
     
     // Verify first name cell is visible within that row
     const firstNameCell =  targetRow.locator('.oxd-table-cell', { hasText: nameText })
-    await expect(firstNameCell).toBeVisible()
-
- 
+    await this.expectVisible(firstNameCell)
+   
     // Verify last name cell is visible within that row
     const lastNameCell = targetRow.locator('.oxd-table-cell', { hasText: lastName })
-    await expect(lastNameCell).toBeVisible()
+    await this.expectVisible(lastNameCell)
   }
     
   async verifyEmployeeSearchResultsById(id: string) {  
     const row = this.page.getByRole('cell', { name: id }).locator('..')
-    await expect(row).toBeVisible()
+    await this.expectVisible(row)
+  }
+
+  async verifyEmployeeSearchByJobTitle(id: string, job:string){
+    const targetRow = this.page.getByRole('cell', {name: id}).locator('..')
+    const jobTitleCell =  targetRow.locator('.oxd-table-cell', { hasText: job })
+    await this.expectVisible(jobTitleCell)
+  }
+
+  async verifyEmployeeSearchBySubUnit(id:string, subunit:string){
+    const targetRow = this.page.getByRole('cell', {name: id}).locator('..')
+    const subUnitCell = targetRow.locator('.oxd-table-cell', {hasText: subunit})
+    await this.expectVisible(subUnitCell)
+  }
+
+  async verifyEmployeeSearchByStatus(id:string, status:string){
+    const targetRow = this.page.getByRole('cell', {name: id}).locator('..')
+    const statusCell = targetRow.locator('.oxd-table-cell', {hasText: status})
+    await this.expectVisible(statusCell)
   }
 
   async searchAndVerifyById(id: string) {
@@ -303,6 +470,12 @@ export class EmployeePage extends BasePage{
     await expect (this.employeeIdInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
   }
 
+  async verifyMissingTerminationFields(message: string){
+    await this.expectText(this.terminationDateError, message)
+    await this.expectText(this.terminationReasonError, message)
+    await expect (this.terminateDateInput).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
+    await expect (this.terminationDropdown).toHaveCSS('border-color', /rgb\(235,\s*\d+,\s*\d+\)/)
+  }
   async verifyTableIsVisible(){
     await this.expectVisible(this.tableRows.first())
   }

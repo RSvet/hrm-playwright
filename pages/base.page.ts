@@ -23,6 +23,10 @@ export class BasePage {
     await expect (element).toHaveText(text)
   }
 
+  async expectValue(element: Locator, text: string){
+    await expect (element).toHaveValue(text)
+  }
+
   async verifyPageUrl(text: string){
     await expect (this.page).toHaveURL(new RegExp (text))
   }

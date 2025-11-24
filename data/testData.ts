@@ -18,6 +18,11 @@ export const testData = {
     editedLastName: 'lNameEdited',
     editedMiddleName: 'mNameEdited',
     gender: 'Female',
+    jobTitle: 'Automaton Tester',
+    subUnit: 'Quality Assurance',
+    employmentStatus: 'Freelance',
+    terminationReason: 'Contract Not Renewed',
+    includeTerminated: 'Past Employees Only',
     missingRequiredFieldMsg: 'Required',
     duplicateIdError: 'Employee Id already exists'
   },
@@ -45,6 +50,7 @@ export const testData = {
     dashboard: 'dashboard/index',
     employeeList: 'pim/viewEmployeeList',
     addEmployee: 'pim/addEmployee',
-    editPersonalDetails: 'pim/viewPersonalDetails'
+    editPersonalDetails: 'pim/viewPersonalDetails',
+    editJobDetails: 'pim/viewJobDetails'
   }
 }
