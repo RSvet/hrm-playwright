@@ -1,220 +1,166 @@
-import test from "@playwright/test"
+import { test } from '../../fixtures/test-fixtures'
 import { testData } from "../../data/testData"
-import { EmployeePage } from "../../pages/employee.page"
-import { LoginPage } from "../../pages/login.page"
+
+// Note: testEmployeeId fixture is used only in tests where ID is not changed.
 
 test.describe('Edit employee page scenarios', ()=>{
-  test.beforeEach(async ({page})=>{  
-    await page.goto(testData.urls.login)
-    const loginPage = new LoginPage(page)
-    await loginPage.loginUser(testData.credentials.validUsername, testData.credentials.validPassword)
-   
+  test.beforeEach(async ({pages})=>{     
+    await pages.login.loginUser(testData.credentials.validUsername, testData.credentials.validPassword)   
   })
   
   test.describe('Edit Personal Details',  () => {
-    test('TC-022: Update required fields in the personal details form', async({page})=>{
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-
-      //navigate to employee list 
-      await employeePage.openPIM() 
+    test('TC-022: Update required fields in the personal details form', async({pages, testEmployeeId})=>{     
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
     
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //edit employee - required data
-      await employeePage.selectEmployeeForEditing(employeeId)      
-      await employeePage.updateRequiredFields(testData.employeeData.editedFirstName, testData.employeeData.editedLastName)
+      await pages.employee.selectEmployeeForEditing(testEmployeeId!)      
+      await pages.employee.updateRequiredFields(testData.employeeData.editedFirstName, testData.employeeData.editedLastName)
 
       //navigate to employee list and verify edited data
-      await employeePage.openPIM()
-      await employeePage.searchEmployeeByName(testData.employeeData.editedFirstName)
-      await employeePage.verifyEmployeeSearchResultsByName(employeeId, testData.employeeData.editedFirstName, testData.employeeData.editedLastName)
-
-      //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId)
-    
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
+      await pages.employee.searchEmployeeByName(testData.employeeData.editedFirstName)
+      await pages.employee.verifyEmployeeSearchResultsByName(testEmployeeId!, testData.employeeData.editedFirstName, testData.employeeData.editedLastName)    
     })
 
-    test('TC-023: Update optional fields in the personal details form', async({page})=>{
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
+    test('TC-023: Update optional fields in the personal details form', async({pages})=>{
+      // add employee      
+      const employeeId = await pages.employee.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
 
       //navigate to employee list 
-      await employeePage.openPIM() 
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
     
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.searchAndVerifyById(employeeId)
 
       //edit employee - optional data
-      await employeePage.selectEmployeeForEditing(employeeId)     
-      await employeePage.updateOptionalFields(testData.employeeData.editedMiddleName, employeeId + 'edited', testData.employeeData.gender)
+      await pages.employee.selectEmployeeForEditing(employeeId)     
+      await pages.employee.updateOptionalFields(testData.employeeData.editedMiddleName, employeeId + 'edited', testData.employeeData.gender)
 
       //navigate to employee list and verify edited data
-      await employeePage.openPIM()
-      await employeePage.searchEmployeebyId(employeeId + 'edited')
-      await employeePage.verifyEmployeeSearchResultsByName(employeeId + 'edited', testData.employeeData.firstName, testData.employeeData.lastName, testData.employeeData.editedMiddleName)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
+      await pages.employee.searchEmployeebyId(employeeId + 'edited')
+      await pages.employee.verifyEmployeeSearchResultsByName(employeeId + 'edited', testData.employeeData.firstName, testData.employeeData.lastName, testData.employeeData.editedMiddleName)
 
       //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId + 'edited')
+      await pages.employee.deleteEmployeeById(employeeId + 'edited')
     
     })
 
-    test('TC-024: Update employee with empty required fields', async({page})=>{      
-      const employeePage = new EmployeePage(page)
-      await employeePage.openPIM()
+    test('TC-024: Update employee with empty required fields', async({pages})=>{      
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
       
       //edit employee - empty required fields
-      await employeePage.clickEditFirstEmployeeButton()      
-      await employeePage.updateRequiredFields('', '')
-      await employeePage.verifyMissingRequiredFieldsError(testData.employeeData.missingRequiredFieldMsg)
-    
+      await pages.employee.clickEditFirstEmployeeButton()      
+      await pages.employee.updateRequiredFields('', '')
+      await pages.employee.verifyMissingRequiredFieldsError(testData.employeeData.missingRequiredFieldMsg)    
     })
 
-    test('TC-025:Update employee with ID from another record', async({page})=>{      
-      const employeePage = new EmployeePage(page)
-      await employeePage.openPIM()
+    test('TC-025:Update employee with ID from another record', async({pages})=>{      
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
       
       // get two existing employee ids
-      const[firstId, secondId] = await employeePage.getTwoEmployeeIds()
+      const[firstId, secondId] = await pages.employee.getTwoEmployeeIds()
 
       // try to update employee's id with existing id
-      await employeePage.selectEmployeeForEditing(firstId)
-      await employeePage.updateEmployeeId(secondId)
-      await employeePage.clickSavePersonalDetailsButton()
-      await employeePage.verifyDuplicateIdError(testData.employeeData.duplicateIdError)    
+      await pages.employee.selectEmployeeForEditing(firstId)
+      await pages.employee.updateEmployeeId(secondId)
+      await pages.employee.clickSavePersonalDetailsButton()
+      await pages.employee.verifyDuplicateIdError(testData.employeeData.duplicateIdError)    
     })
   })
 
   test.describe('Edit Job Details',  () => {
-    test('TC-026: Update job title for selected employee', async({page})=>{      
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-    
-      //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+    test('TC-026: Update job title for selected employee', async({pages, testEmployeeId})=>{    
+      // verify employee is in the list      
+      await pages.employee.goToEmployeeList(testData.urls.employeeList) 
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //edit employee
-      await employeePage.selectEmployeeForEditing(employeeId)  
-      await employeePage.clickJobDetailsLink()
-      await employeePage.verifyPageUrl(testData.urls.editJobDetails)
-      
+      await pages.employee.selectEmployeeForEditing(testEmployeeId!)  
+      await pages.employee.clickJobDetailsLink()
+      await pages.employee.verifyPageUrl(testData.urls.editJobDetails)      
 
       // edit job details with job title   
-      await employeePage.addJobTitle(testData.employeeData.jobTitle)    
+      await pages.employee.addJobTitle(testData.employeeData.jobTitle)    
 
-      // // navigate to employee list to confirm change
-      await employeePage.openPIM()
-      await employeePage.searchEmployeeByJobTitle(testData.employeeData.jobTitle)
-      await employeePage.verifyEmployeeSearchByJobTitle(employeeId, testData.employeeData.jobTitle)
-
-      //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId)
-
+      // navigate to employee list to confirm change
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchEmployeeByJobTitle(testData.employeeData.jobTitle)
+      await pages.employee.verifyEmployeeSearchByJobTitle(testEmployeeId!, testData.employeeData.jobTitle)
     })
 
-    test('TC-027: Update subunit for selected employee', async({page})=>{      
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-    
+    test('TC-027: Update subunit for selected employee', async({pages, testEmployeeId})=>{      
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //edit employee
-      await employeePage.selectEmployeeForEditing(employeeId)  
-      await employeePage.clickJobDetailsLink()
-      await employeePage.verifyPageUrl(testData.urls.editJobDetails)
-      
+      await pages.employee.selectEmployeeForEditing(testEmployeeId!)  
+      await pages.employee.clickJobDetailsLink()
+      await pages.employee.verifyPageUrl(testData.urls.editJobDetails)      
 
       // edit subunit
-      await employeePage.addSubUnit(testData.employeeData.subUnit)    
+      await pages.employee.addSubUnit(testData.employeeData.subUnit)    
 
       // navigate to employee list to confirm change
-      await employeePage.openPIM()
-      await employeePage.searchEmployeeBySubUnit(testData.employeeData.subUnit)
-      await employeePage.verifyEmployeeSearchBySubUnit(employeeId, testData.employeeData.subUnit)
-
-      //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId)
-
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchEmployeeBySubUnit(testData.employeeData.subUnit)
+      await pages.employee.verifyEmployeeSearchBySubUnit(testEmployeeId!, testData.employeeData.subUnit)
     })
 
-    test('TC-028: Update status for selected employee', async({page})=>{      
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-    
+    test('TC-028: Update status for selected employee', async({pages, testEmployeeId})=>{       
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //edit employee
-      await employeePage.selectEmployeeForEditing(employeeId)  
-      await employeePage.clickJobDetailsLink()
-      await employeePage.verifyPageUrl(testData.urls.editJobDetails)
-      
+      await pages.employee.selectEmployeeForEditing(testEmployeeId!)  
+      await pages.employee.clickJobDetailsLink()
+      await pages.employee.verifyPageUrl(testData.urls.editJobDetails)      
 
       // edit status
-      await employeePage.addStatus(testData.employeeData.employmentStatus)    
+      await pages.employee.addStatus(testData.employeeData.employmentStatus)    
 
       // navigate to employee list to confirm change
-      await employeePage.openPIM()
-      await employeePage.searchEmployeeByStatus(testData.employeeData.employmentStatus)
-      await employeePage.verifyEmployeeSearchByStatus(employeeId, testData.employeeData.employmentStatus)
-
-      //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId)
-
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchEmployeeByStatus(testData.employeeData.employmentStatus)
+      await pages.employee.verifyEmployeeSearchByStatus(testEmployeeId!, testData.employeeData.employmentStatus)
     })
 
-    test('TC-029: Terminate employment for selected employee', async({page})=>{      
-      // add employee
-      const employeePage = new EmployeePage(page)
-      const employeeId = await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-    
+    test('TC-029: Terminate employment for selected employee', async({pages, testEmployeeId})=>{    
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //edit employee
-      await employeePage.selectEmployeeForEditing(employeeId)  
-      await employeePage.clickJobDetailsLink()
-      await employeePage.verifyPageUrl(testData.urls.editJobDetails)
-      
+      await pages.employee.selectEmployeeForEditing(testEmployeeId!)  
+      await pages.employee.clickJobDetailsLink()
+      await pages.employee.verifyPageUrl(testData.urls.editJobDetails)     
 
       // terminate
-      await employeePage.terminateEmployee(testData.employeeData.terminationReason)
+      await pages.employee.terminateEmployee(testData.employeeData.terminationReason)
 
       // navigate to employee list to confirm change
-      await employeePage.openPIM()
-      await employeePage.searchEmployeeByEmployment(testData.employeeData.includeTerminated)
-      // await employeePage.selectEmployment(testData.employeeData.includeTerminated)
-      // await employeePage.searchEmployeebyId(employeeId)
-    
-      await employeePage.verifyEmployeeSearchResultsById(employeeId)
-
-      //cleanup test data
-      await employeePage.deleteEmployeeById(employeeId)
-
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
+      await pages.employee.searchEmployeeByEmployment(testData.employeeData.includeTerminated)   
+      await pages.employee.verifyEmployeeSearchResultsById(testEmployeeId!)
     })
 
-    test('TC-030: Terminate employment without required fields', async({page})=>{      
-      // add employee
-      const employeePage = new EmployeePage(page)      
-      await employeePage.openPIM()
+    test('TC-030: Terminate employment without required fields', async({pages})=>{        
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)
 
       //edit employee
-      await employeePage.clickEditFirstEmployeeButton()  
-      await employeePage.clickJobDetailsLink()
-      await employeePage.verifyPageUrl(testData.urls.editJobDetails)     
+      await pages.employee.clickEditFirstEmployeeButton()  
+      await pages.employee.clickJobDetailsLink()
+      await pages.employee.verifyPageUrl(testData.urls.editJobDetails)     
 
       // terminate
-      await employeePage.clickTerminateButton()
-      await employeePage.clickSaveButtonForTermination()
-      await employeePage.verifyMissingTerminationFields(testData.employeeData.missingRequiredFieldMsg)
-   
+      await pages.employee.clickTerminateButton()
+      await pages.employee.clickSaveButtonForTermination()
+      await pages.employee.verifyMissingTerminationFields(testData.employeeData.missingRequiredFieldMsg)   
     })
   })
 })

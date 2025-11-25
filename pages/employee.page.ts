@@ -493,7 +493,7 @@ export class EmployeePage extends BasePage{
 
   async verifyMissingTerminationFields(message: string){
     await this.expectError(this.terminateDateInput, this.terminationDateError, message)  
-    await this.expectError(this.terminationReasonError, this.terminationDropdown, message)   
+    await this.expectError(this.terminationDropdown, this.terminationReasonError, message)   
   }
     
 }
