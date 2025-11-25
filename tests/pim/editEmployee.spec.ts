@@ -189,8 +189,9 @@ test.describe('Edit employee page scenarios', ()=>{
 
       // navigate to employee list to confirm change
       await employeePage.openPIM()
-      await employeePage.selectEmployment(testData.employeeData.includeTerminated)
-      await employeePage.searchEmployeebyId(employeeId)
+      await employeePage.searchEmployeeByEmployment(testData.employeeData.includeTerminated)
+      // await employeePage.selectEmployment(testData.employeeData.includeTerminated)
+      // await employeePage.searchEmployeebyId(employeeId)
     
       await employeePage.verifyEmployeeSearchResultsById(employeeId)
 
