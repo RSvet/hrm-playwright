@@ -334,6 +334,11 @@ export class EmployeePage extends BasePage{
 
   // Employee list
 
+  async goToEmployeeList(url:string) {
+    await this.openPIM()
+    await this.verifyPageUrl(url)
+  }
+
   async searchEmployeeByName(name: string) {
     await this.searchByInput(this.employeeNameInput, name)  
   }
@@ -445,8 +450,7 @@ export class EmployeePage extends BasePage{
     await this.expectRowToContain(id, status)   
   }
 
-  async searchAndVerifyById(id: string) {
-    await this.openPIM()   
+  async searchAndVerifyById(id: string) {   
     await this.searchEmployeebyId(id)
     await this.verifyEmployeeSearchResultsById(id)
   }

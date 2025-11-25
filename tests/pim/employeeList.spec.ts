@@ -1,124 +1,80 @@
-import test from "@playwright/test"
+import { test } from '../../fixtures/test-fixtures'
 import { testData } from "../../data/testData"
-import { LoginPage } from "../../pages/login.page"
-import { EmployeePage } from "../../pages/employee.page"
 
 test.describe('Employee list page scenarios', ()=>{
-  test.beforeEach(async ({page})=>{  
-    await page.goto(testData.urls.login)
-    const loginPage = new LoginPage(page)
-    await loginPage.loginUser(testData.credentials.validUsername, testData.credentials.validPassword)
+  test.beforeEach(async ({pages})=>{ 
+    await pages.login.loginUser(testData.credentials.validUsername, testData.credentials.validPassword)   
   })
   
   test.describe('Search Employee',  () => {
-    test('TC-015: Search by employee name', async({page})=>{
-      // create a test employee
-      const employeePage = new EmployeePage(page)     
-      const employeeId =  await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-
-      //navigate to employee list 
-      await employeePage.openPIM()
-      await employeePage.verifyPageUrl(testData.urls.employeeList)
-
-      //search for the employee and verify
-      await employeePage.searchEmployeeByName(testData.employeeData.firstName)
-      await employeePage.verifyEmployeeSearchResultsByName(employeeId, testData.employeeData.firstName, testData.employeeData.firstName)
-
-      //delete test data
-      await employeePage.deleteEmployeeById(employeeId)
-   
+    test('TC-015: Search by employee name', async({pages, testEmployeeId})=>{ 
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)     
+      await pages.employee.searchEmployeeByName(testData.employeeData.firstName)
+      await pages.employee.verifyEmployeeSearchResultsByName(testEmployeeId!, testData.employeeData.firstName, testData.employeeData.lastName)  
     })  
 
-    test('TC-016: Search by employee ID', async({page})=>{   
-      // create a test employee
-      const employeePage = new EmployeePage(page)     
-      const employeeId =  await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)  
-
-      //search for the employee and verify
-      await employeePage.searchAndVerifyById(employeeId)
-
-      //delete test data
-      await employeePage.deleteEmployeeById(employeeId)
+    test('TC-016: Search by employee ID', async({pages, testEmployeeId})=>{  
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)           
+      await pages.employee.searchEmployeebyId(testEmployeeId!)
+      await pages.employee.verifyEmployeeSearchResultsById(testEmployeeId!)     
     }) 
 
-    test('TC-017: Search with invalid data', async({page})=>{      
-      //navigate to employee list 
-      const employeePage = new EmployeePage(page)
-      await employeePage.openPIM()
-      await employeePage.verifyPageUrl(testData.urls.employeeList)
-
-      //search for the employee and verify
-      await employeePage.searchEmployeeByName(testData.employeeData.invalidFirstName + ' ' + testData.employeeData.invalidLastName)
-      await employeePage.verifyEmployeeDoesNotExist()
+    test('TC-017: Search with invalid data', async({pages})=>{ 
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)  
+      await pages.employee.searchEmployeeByName(testData.employeeData.invalidFirstName + ' ' + testData.employeeData.invalidLastName)
+      await pages.employee.verifyEmployeeDoesNotExist()
     }) 
 
-    test('TC-018: Reset search', async({page})=>{
-      //navigate to employee list 
-      const employeePage = new EmployeePage(page)
-      await employeePage.openPIM()
-      await employeePage.verifyPageUrl(testData.urls.employeeList)
-
-      //search for the employee and verify
-      await employeePage.searchEmployeeByName(testData.employeeData.invalidFirstName)
-      await employeePage.verifyEmployeeDoesNotExist()
+    test('TC-018: Reset search', async({pages})=>{ 
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)    
+      await pages.employee.searchEmployeeByName(testData.employeeData.invalidFirstName)
+      await pages.employee.verifyEmployeeDoesNotExist()
 
       //reset search
-      await employeePage.clickResetButton()
-      await employeePage.verifySearchIsReset()
+      await pages.employee.clickResetButton()
+      await pages.employee.verifySearchIsReset()
     })
   }) 
 
   test.describe('Delete Employee',  () => {
-    test('TC-019: Delete an existing employee', async({page})=>{
-      // create a test employee
-      const employeePage = new EmployeePage(page)      
-      const employeeId =  await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
+    test('TC-019: Delete an existing employee', async({pages})=>{
+      // create a test employee     
+      const employeeId =  await pages.employee.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
 
       //search for the employee and verify
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)  
+      await pages.employee.searchAndVerifyById(employeeId)
 
       //delete test data and confirm
-      await employeePage.deleteAndConfirm(employeeId)
+      await pages.employee.deleteAndConfirm(employeeId)
     })  
 
-    test('TC-020: Cancel deletion', async({page})=>{
-       // create a test employee
-      const employeePage = new EmployeePage(page)     
-      const employeeId =  await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
-
+    test('TC-020: Cancel deletion', async({pages, testEmployeeId})=>{
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)  
+      await pages.employee.searchAndVerifyById(testEmployeeId!)
 
       //cancel
-      await employeePage.cancelDeletion(employeeId)
-      await employeePage.verifyEmployeeSearchResultsById(employeeId)
-
-      //cleanup
-      await employeePage.deleteEmployeeById(employeeId)
-   
+      await pages.employee.cancelDeletion(testEmployeeId!)
+      await pages.employee.verifyEmployeeSearchResultsById(testEmployeeId!)     
     }) 
 
-    test('TC-021: Delete employee via bulk option', async({page})=>{
-
-       // create a test employee
-      const employeePage = new EmployeePage(page)    
-      const employeeId =  await employeePage.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
+    test('TC-021: Delete employee via bulk option', async({pages})=>{
+       // create a test employee   
+      const employeeId =  await pages.employee.createTestEmployee(testData.employeeData.firstName, testData.employeeData.lastName)
 
       //verify employee is in the list
-      await employeePage.searchAndVerifyById(employeeId)
+      await pages.employee.goToEmployeeList(testData.urls.employeeList)  
+      await pages.employee.searchAndVerifyById(employeeId)
 
       //delete with checkbox
-      await employeePage.checkEmployeeCheckBox(employeeId)
-      await employeePage.clickDeleteSelectedButton()
-      await employeePage.clickConfirmDeleteButton()
+      await pages.employee.checkEmployeeCheckBox(employeeId)
+      await pages.employee.clickDeleteSelectedButton()
+      await pages.employee.clickConfirmDeleteButton()
 
       //search for the employee to confirm deletion
-      await employeePage.searchEmployeebyId(employeeId)
-      await employeePage.verifyEmployeeDoesNotExist()
-   
-    }) 
-    
+      await pages.employee.searchEmployeebyId(employeeId)
+      await pages.employee.verifyEmployeeDoesNotExist()   
+    })     
   }) 
- 
-
 })
