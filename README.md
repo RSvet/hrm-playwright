@@ -9,7 +9,3 @@ This is a test automation project using Playwright with TypeScript, covering the
     ✅ Dashboard: UI elements verification, navigation via quick links  
     ✅ Employee Module (PIM): adding, searching, editing, and deleting employees  
 - Test data is maintained in a separate file (testData.ts) for easier management.
-  
-- Tests combine UI actions and API calls for setup and teardown of test data.
-
-Note: API testing is planned for future iterations.
