@@ -17,6 +17,7 @@ export class EmployeePage extends BasePage{
   private saveButton: Locator
   private cancelButton: Locator
   private successToast: Locator
+  private nameFieldsSection: Locator
 
   // Employee List
   private employeeNameInput: Locator
@@ -69,6 +70,7 @@ export class EmployeePage extends BasePage{
     this.saveButton = this.page.locator('button:has-text("Save")')
     this.cancelButton =  this.page.locator('button:has-text("Cancel")')
     this.successToast = this.page.locator('.oxd-toast--success')
+    this.nameFieldsSection = this.page.locator('.--name-grouped-field')
 
     // Employee List Locators
     this.employeeNameInput = this.page.locator('label:has-text("Employee Name")').locator('..').locator(':scope + div input')  
@@ -494,6 +496,20 @@ export class EmployeePage extends BasePage{
   async verifyMissingTerminationFields(message: string){
     await this.expectError(this.terminateDateInput, this.terminationDateError, message)  
     await this.expectError(this.terminationDropdown, this.terminationReasonError, message)   
+  }
+
+  //SNAPSHOTS
+  
+  async snapshotNameFieldsAddEmployee() {  
+    await this.snapshotOnPage(this.nameFieldsSection, 'add-missing-required.png') 
+  }
+
+  async snapshotDuplicateId(){
+    await this.snapshotOnPage(this.employeeIdError, 'add-duplicate-id.png')
+  }
+
+  async snapshotTerminateValidation() {  
+    await this.snapshotOnPage(this.terminateModal, 'terminate-missing-required.png') 
   }
     
 }

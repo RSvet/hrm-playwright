@@ -28,7 +28,8 @@ test.describe('Add employee page scenarios', ()=>{
 
       //verify user is on the same page and error messages are displayed
       await pages.employee.verifyPageUrl(testData.urls.addEmployee)
-      await pages.employee.verifyMissingRequiredFieldsError(testData.employeeData.missingRequiredFieldMsg)   
+      await pages.employee.verifyMissingRequiredFieldsError(testData.employeeData.missingRequiredFieldMsg) 
+      await pages.employee.snapshotNameFieldsAddEmployee()  
     })
 
     test('TC-014: Cancel adding employee', async({pages})=>{     

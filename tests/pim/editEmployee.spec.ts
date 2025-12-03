@@ -69,6 +69,7 @@ test.describe('Edit employee page scenarios', ()=>{
       await pages.employee.updateEmployeeId(secondId)
       await pages.employee.clickSavePersonalDetailsButton()
       await pages.employee.verifyDuplicateIdError(testData.employeeData.duplicateIdError)    
+      await pages.employee.snapshotDuplicateId()
     })
   })
 
@@ -161,6 +162,7 @@ test.describe('Edit employee page scenarios', ()=>{
       await pages.employee.clickTerminateButton()
       await pages.employee.clickSaveButtonForTermination()
       await pages.employee.verifyMissingTerminationFields(testData.employeeData.missingRequiredFieldMsg)   
+      await pages.employee.snapshotTerminateValidation()
     })
   })
 })
