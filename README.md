@@ -41,4 +41,4 @@ This is a test automation project using Playwright with TypeScript, covering the
 
 - `data/` – Test data used across scenarios
 
-- `screenshots/` – Stores element-level snapshots for visual regression
+- `golden-shots/` – Stores element-level snapshots for visual regression

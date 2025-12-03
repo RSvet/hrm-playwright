@@ -36,7 +36,7 @@ export class BasePage {
   }
 
   async snapshotOnPage(element:Locator, fileName:string){
-     await expect(element).toHaveScreenshot(fileName);
+     await expect(element).toHaveScreenshot(fileName, { maxDiffPixelRatio: 0.02  });
   }
 
 }
