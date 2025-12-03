@@ -53,4 +53,11 @@ export class DashboardPage extends BasePage{
       await this.page.goBack(); // Return to dashboard for next button
     }
   }
+
+    //Snapshot
+  
+  async snapshotQuickLaunch() {
+    await this.page.mouse.move(0, 0)
+    await this.snapshotOnPage(this.quickLaunchSection, 'dashboard-quick-launch.png') 
+  }
 }

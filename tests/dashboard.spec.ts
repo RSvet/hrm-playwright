@@ -17,6 +17,7 @@ test.describe('Dashboard page scenarios', ()=>{
   test.describe('Navigation from the Dashboard page',  () => {
     test('TC-032: Verify navigation from dashboard quick links', async({pages})=>{       
       await pages.dashboard.verifyDashboardPageUrl(testData.urls.dashboard)
+      await pages.dashboard.snapshotQuickLaunch()
       await pages.dashboard.verifyAllQuickLaunchButtons(testData.dashboard.quickLaunch)
     })  
   }) 
