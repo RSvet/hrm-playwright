@@ -35,4 +35,8 @@ export class BasePage {
     await expect(element).toHaveCSS('border-color', colorRegex);
   }
 
+  async snapshotOnPage(element:Locator, fileName:string){
+     await expect(element).toHaveScreenshot(fileName);
+  }
+
 }

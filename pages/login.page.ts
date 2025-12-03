@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./base.page";
+import path from "path";
 
 export class LoginPage extends BasePage {
   private loginTitle: Locator
@@ -12,6 +13,7 @@ export class LoginPage extends BasePage {
   private resetPasswordButton: Locator
   private forgotPasswordLink: Locator
   private forgotPasswortTitle: Locator  
+  private loginForm:Locator
 
   constructor(page: Page){
     super(page)
@@ -25,6 +27,7 @@ export class LoginPage extends BasePage {
     this.resetPasswordButton = this.page.getByRole('button', {name: "Reset Password"})
     this.forgotPasswordLink =  this.page.locator('.orangehrm-login-forgot-header')
     this.forgotPasswortTitle = this.page.locator('h6.orangehrm-forgot-password-title')
+    this.loginForm =  this.page.locator('.orangehrm-login-form')
   }
 
   // Actions
@@ -87,6 +90,20 @@ export class LoginPage extends BasePage {
 
   async verifyInvalidCredentialsMessage(message: string) {
     await this.expectVisible(this.page.getByText(message))
+  }
+
+  //Snapshots
+  
+  async snapshotEmptyLoginForm() {
+    await this.snapshotOnPage(this.loginForm, 'login-empty.png') 
+  }
+
+  async snapshotMissingCredentialsError() {
+    await this.snapshotOnPage(this.loginForm, 'login--missing-error.png') 
+  }
+
+  async snapshotInvalidCredentialsError() {
+    await this.snapshotOnPage(this.loginForm, 'login--invalid-error.png') 
   }
 
 }

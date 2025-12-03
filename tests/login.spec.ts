@@ -1,9 +1,11 @@
 import { test } from '../fixtures/test-fixtures'
 import { testData } from '../data/testData'
 
+
 test.describe('Login page scenarios', ()=>{  
   test.describe('Successful login',  () => {
-    test('TC-001: Login in with correct credentials', async({pages})=>{    
+    test('TC-001: Login in with correct credentials', async({pages})=>{
+  await pages.login.snapshotEmptyLoginForm();
       await pages.login.loginUser(testData.credentials.validUsername, testData.credentials.validPassword)
       await pages.dashboard.verifyDashboardPageUrl(testData.urls.dashboard)
       await pages.dashboard.expectDashboardTitle()
@@ -15,6 +17,7 @@ test.describe('Login page scenarios', ()=>{
       await pages.login.enterPassword(testData.credentials.validPassword)
       await pages.login.clickLoginButton()
       await pages.login.verifyMissingUsernameError(testData.loginMessages.missingCredential)  
+      await pages.login.snapshotMissingCredentialsError()
     })
 
     test('TC-003: Login with correct username and blank password', async({pages})=>{      
@@ -44,6 +47,7 @@ test.describe('Login page scenarios', ()=>{
     test('TC-007: Login with invalid username and password', async({pages})=>{    
       await pages.login.loginUser(testData.credentials.invalidUsername, testData.credentials.validPassword)
       await pages.login.verifyInvalidCredentialsMessage(testData.loginMessages.invalidCredentials)
+      await pages.login.snapshotInvalidCredentialsError()
     })  
   })
 
