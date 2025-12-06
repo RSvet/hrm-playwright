@@ -36,7 +36,14 @@ export class BasePage {
   }
 
   async snapshotOnPage(element:Locator, fileName:string){
-     await expect(element).toHaveScreenshot(fileName, { maxDiffPixelRatio: 0.02  });
+    await expect(element).toBeVisible()
+    await element.scrollIntoViewIfNeeded()
+    await element.page().evaluate(() => document.fonts.ready)
+    await expect(element).toHaveScreenshot(fileName,{
+    threshold: 0.3,
+    animations: 'disabled',
+    scale: 'css',
+    })
   }
 
 }
