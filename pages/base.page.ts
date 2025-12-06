@@ -40,7 +40,6 @@ export class BasePage {
     await element.scrollIntoViewIfNeeded()
     await element.page().evaluate(() => document.fonts.ready)
     await expect(element).toHaveScreenshot(fileName,{
-    threshold: 0.3,
     animations: 'disabled',
     scale: 'css',
     })

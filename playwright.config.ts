@@ -33,6 +33,11 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 }
   },
   snapshotPathTemplate: 'golden-shots/{projectName}/{testFilePath}/{arg}{ext}',
+   expect: {
+    toHaveScreenshot: {
+      threshold: 0.1,
+    },
+  },
 
   /* Configure projects for major browsers */
   projects: [
